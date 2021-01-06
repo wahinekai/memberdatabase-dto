@@ -4,6 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>WahineKai.MemberDatabase.Dto</RootNamespace>
     <Nullable>enable</Nullable>
+    <PackageId>WahineKai.MemberDatabase.Dto</PackageId>
+    <Company>Wahine Kai</Company>
+    <PackageDescription>Data Transfer Objects for Wahine Kai's Member Database</PackageDescription>
+    <RepositoryUrl>https://github.com/wahinekai/memberdatabase-dto</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,10 +33,8 @@
     <PackageReference Include="Microsoft.Graph.Auth" Version="1.0.0-preview.6" />
     <PackageReference Include="Microsoft.Graph" Version="3.21.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.24.0" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <PackageReference Include="WahineKai.Common" Version="1.*" />
   </ItemGroup>
 
 </Project>
