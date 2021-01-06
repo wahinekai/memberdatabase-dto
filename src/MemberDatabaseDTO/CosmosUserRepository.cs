@@ -115,7 +115,7 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Deleting user with id {user.Id} and email {user.Email} from the database");
 
-            await this.container.DeleteItemAsync<T>(user.Id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(user.Email));
+            await this.container.DeleteItemAsync<T>(user.Id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(user.Id.ToString()));
 
             this.Logger.LogInformation("Deleted 1 user from the database");
         }
