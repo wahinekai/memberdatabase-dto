@@ -10,14 +10,6 @@ jobs:
   Package:
     runs-on: ubuntu-latest
 
-    env:
-      NUGET_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-      NUGET_SRC_NAME: github-wahinekai
-      TEST: "false"
-      CONFIG: Release
-      VERSION: 1.0.${{ github.run_number }}
-      PROJECT_FILE_PATH: src/MemberDatabaseDTO.csproj
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -27,22 +19,10 @@ jobs:
         with:
           dotnet-version: "5.0"
 
-      - name: Add Custom NuGet Feed to .NET
-        run: dotnet nuget add source ${{ env.NUGET_URL }} -n ${{ env.NUGET_SRC_NAME }} -u ${{ github.repository_owner }} -p ${{ secrets.PACKAGES_TOKEN }} --store-password-in-clear-text
-
-      - name: Restore dependencies
-        run: dotnet restore ${{ env.PROJECT_FILE_PATH }}
-
-      - name: Build
-        run: dotnet build ${{ env.PROJECT_FILE_PATH }} --no-restore /p:VersionPrefix=${{ env.VERSION }} --configuration ${{ env.CONFIG }} -o out
-
-      - name: Test
-        if: ${{ env.TEST == 'true' }}
-        run: dotnet test ${{ env.PROJECT_FILE_PATH }} --no-build --configuration ${{ env.CONFIG }} -o out
-
-      - name: Package
-        run: dotnet pack ${{ env.PROJECT_FILE_PATH }} --no-build --configuration ${{ env.CONFIG }} /p:Version=${{ env.VERSION }} /p:OutputPath=../out -o packages
-
-      - name: NuGet Push
-        run: |
-          dotnet nuget push packages/*.nupkg --source ${{ env.NUGET_URL }} --skip-duplicate --api-key ${{ secrets.PACKAGES_TOKEN }}
+      - name: Build, Test, and Publish NuGet
+        uses: wahinekai/actions-publish-nuget@v3.0.1
+        with:
+          version: 1.0.${{ github.run_number }}
+          project-path: src/MemberDatabaseDTO/MemberDatabaseDTO.csproj
+          solution-path: src/MemberDatabaseDTO.sln
+          nuget-feed-password: ${{ secrets.PACKAGES_TOKEN }}
