@@ -27,7 +27,7 @@ jobs:
           dotnet-version: "5.0"
           source-url: ${{ env.NUGET_URL }}
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+          NUGET_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT_FILE_PATH }}
