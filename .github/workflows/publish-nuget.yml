@@ -45,4 +45,4 @@ jobs:
 
       - name: NuGet Push
         run: |
-          dotnet nuget push packages/*.nupkg --source ${{ env.NUGET_URL }} --skip-duplicate
+          dotnet nuget push packages/*.nupkg --source ${{ env.NUGET_URL }} --skip-duplicate --api-key ${{ secrets.PACKAGES_TOKEN }}
