@@ -12,11 +12,11 @@ jobs:
 
     env:
       NUGET_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      NUGET_SRC_NAME: github-wahinekai
       TEST: "false"
       CONFIG: Release
       VERSION: 1.0.${{ github.run_number }}
       PROJECT_FILE_PATH: src/MemberDatabaseDTO.csproj
-      GITHUB_NUGET_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
     steps:
       - name: Checkout Code
@@ -26,9 +26,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: "5.0"
-          source-url: ${{ env.NUGET_URL }}
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+
+      - name: Add Custom NuGet Feed to .NET
+        run: dotnet nuget add source ${{ env.NUGET_URL }} -n ${{ env.NUGET_SRC_NAME }} -u ${{ github.repository_owner }} -p ${{ secrets.PACKAGES_TOKEN }} --store-password-in-clear-text
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT_FILE_PATH }}
