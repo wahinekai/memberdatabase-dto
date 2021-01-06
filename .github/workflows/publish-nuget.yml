@@ -15,7 +15,6 @@ jobs:
       TEST: "false"
       CONFIG: Release
       VERSION: 1.0.${{ github.run_number }}
-      NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
       PROJECT_FILE_PATH: src/MemberDatabaseDTO.csproj
 
     steps:
@@ -27,6 +26,8 @@ jobs:
         with:
           dotnet-version: "5.0"
           source-url: ${{ env.NUGET_URL }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT_FILE_PATH }}
