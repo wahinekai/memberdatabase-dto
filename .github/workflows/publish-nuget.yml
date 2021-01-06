@@ -29,6 +29,10 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
+      - name: Ensure GitHub NuGet Source
+        run: |
+          dotnet nuget add source ${{ env.NUGET_URL }} -n github-wahinekai -u cbpodd -p ${{ secrets.REGISTRY_TOKEN }} --store-password-in-clear-text
+
       - name: Restore dependencies
         run: dotnet restore ${{ env.PROJECT_FILE_PATH }}
 
