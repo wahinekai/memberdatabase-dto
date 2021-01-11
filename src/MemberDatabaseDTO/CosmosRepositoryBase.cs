@@ -45,7 +45,7 @@ namespace WahineKai.MemberDatabase.Dto
 
             // Create cosmos client
             var cosmosOptions = new CosmosClientOptions() { Serializer = new CosmosJsonSerializer(jsonSerializationSettings) };
-            this.CosmosClient = new CosmosClient(cosmosConfiguration.EndpointUrl, cosmosConfiguration.PrimaryKey, cosmosOptions);
+            this.CosmosClient = new CosmosClient(cosmosConfiguration.ConnectionString, cosmosOptions);
 
             this.Logger.LogTrace("Construction of Cosmos Repository Base complete");
         }

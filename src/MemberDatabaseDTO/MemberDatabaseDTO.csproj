@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.Graph" Version="3.21.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.24.0" />
 
-    <PackageReference Include="WahineKai.Common" Version="1.*" />
+    <PackageReference Include="WahineKai.Common" Version="1.1.*" />
   </ItemGroup>
 
 </Project>

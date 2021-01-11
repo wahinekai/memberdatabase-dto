@@ -17,14 +17,9 @@ namespace WahineKai.MemberDatabase.Dto.Properties
     public class CosmosConfiguration : IValidatable
     {
         /// <summary>
-        /// Gets the url of the Cosmos DB endpoint
+        /// Gets the connection string for the Azure Blob Configuration
         /// </summary>
-        public string? EndpointUrl { get; init; }
-
-        /// <summary>
-        /// Gets the primary key of the Cosmos DB endpoint
-        /// </summary>
-        public string? PrimaryKey { get; init; }
+        public string? ConnectionString { get; init; }
 
         /// <summary>
         /// Gets the database id of this cosmos configuration
@@ -41,8 +36,7 @@ namespace WahineKai.MemberDatabase.Dto.Properties
             // Build CosmosConfiguration
             var cosmosConfiguration = new CosmosConfiguration
             {
-                EndpointUrl = configuration["Cosmos:EndpointUrl"],
-                PrimaryKey = configuration["Cosmos:PrimaryKey"],
+                ConnectionString = configuration["Cosmos:ConnectionString"],
                 DatabaseId = configuration["Cosmos:DatabaseId"],
             };
 
@@ -55,8 +49,7 @@ namespace WahineKai.MemberDatabase.Dto.Properties
         /// <inheritdoc/>
         public void Validate()
         {
-            Ensure.IsNotNullOrWhitespace(() => this.EndpointUrl);
-            Ensure.IsNotNullOrWhitespace(() => this.PrimaryKey);
+            Ensure.IsNotNullOrWhitespace(() => this.ConnectionString);
             Ensure.IsNotNullOrWhitespace(() => this.DatabaseId);
         }
     }
