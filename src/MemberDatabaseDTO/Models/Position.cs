@@ -8,6 +8,7 @@
 namespace WahineKai.MemberDatabase.Dto.Models
 {
     using System;
+    using System.Text;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
 
@@ -39,6 +40,32 @@ namespace WahineKai.MemberDatabase.Dto.Models
 
             // Started must not be null
             this.Started = Ensure.IsNotNull(() => this.Started);
+        }
+
+        /// <summary>
+        /// Override of base ToString Method
+        /// </summary>
+        /// <returns>A printable string representing this document</returns>
+        public override string ToString()
+        {
+            bool valid = true;
+            try
+            {
+                this.Validate();
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("Position Model");
+            stringBuilder.AppendLine($"Valid?: {valid}");
+            stringBuilder.AppendLine($"Name: {this.Name}");
+            stringBuilder.AppendLine($"Date Started: {this.Started}");
+            stringBuilder.AppendLine($"Date Ended: {this.Ended}");
+
+            return stringBuilder.ToString();
         }
     }
 }

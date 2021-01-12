@@ -9,6 +9,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;
+    using System.Text;
     using Newtonsoft.Json;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
@@ -45,6 +46,32 @@ namespace WahineKai.MemberDatabase.Dto.Models
         {
             // Email is required
             this.Email = Ensure.IsNotNullOrWhitespace(() => this.Email);
+        }
+
+        /// <summary>
+        /// Override of base ToString Method
+        /// </summary>
+        /// <returns>A printable string representing this document</returns>
+        public override string ToString()
+        {
+            bool valid = true;
+            try
+            {
+                this.Validate();
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("User Model");
+            stringBuilder.AppendLine("UserBase Section");
+            stringBuilder.AppendLine($"Valid?: {valid}");
+            stringBuilder.AppendLine($"id: {this.Id}");
+            stringBuilder.AppendLine($"Email: {this.Email}");
+
+            return stringBuilder.ToString();
         }
     }
 }

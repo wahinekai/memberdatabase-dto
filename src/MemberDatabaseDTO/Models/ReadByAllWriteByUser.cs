@@ -11,6 +11,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Text;
     using StatesAndProvinces;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
@@ -122,6 +123,54 @@ namespace WahineKai.MemberDatabase.Dto.Models
                     throw new ArgumentException($"{this.Region} is not a supported region");
                 }
             }
+        }
+
+        /// <summary>
+        /// Override of base ToString Method
+        /// </summary>
+        /// <returns>A printable string representing this document</returns>
+        public override string ToString()
+        {
+            bool valid = true;
+            try
+            {
+                this.Validate();
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            var stringBuilder = new StringBuilder(base.ToString());
+            stringBuilder.AppendLine("ReadByAllWriteByUser Section");
+            stringBuilder.AppendLine($"Valid?: {valid}");
+            stringBuilder.AppendLine($"First Name: {this.FirstName}");
+            stringBuilder.AppendLine($"Last Name: {this.LastName}");
+            stringBuilder.AppendLine($"Facebook Name: {this.FacebookName}");
+            stringBuilder.AppendLine($"City: {this.City}");
+            stringBuilder.AppendLine($"Region: {this.Region}");
+            stringBuilder.AppendLine($"Postal Code: {this.PostalCode}");
+            stringBuilder.AppendLine($"Country: {this.Country}");
+            stringBuilder.AppendLine($"Occupation: {this.Occupation}");
+            stringBuilder.AppendLine($"Level: {this.Level}");
+            stringBuilder.AppendLine($"Photo Url: {this.PhotoUrl}");
+            stringBuilder.AppendLine($"Biography: {this.Biography}");
+            stringBuilder.AppendLine($"Started Surfing: {this.StartedSurfing}");
+            stringBuilder.AppendLine("Boards:");
+
+            foreach (var board in this.Boards)
+            {
+                stringBuilder.AppendLine(board);
+            }
+
+            stringBuilder.AppendLine("Surf Spots:");
+
+            foreach (var surfSpot in this.SurfSpots)
+            {
+                stringBuilder.AppendLine(surfSpot);
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

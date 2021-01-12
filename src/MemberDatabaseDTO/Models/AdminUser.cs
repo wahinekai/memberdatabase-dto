@@ -8,6 +8,7 @@
 namespace WahineKai.MemberDatabase.Dto.Models
 {
     using System;
+    using System.Text;
     using Newtonsoft.Json;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
@@ -237,6 +238,48 @@ namespace WahineKai.MemberDatabase.Dto.Models
                 LifetimeMember = this.LifetimeMember,
                 SocialMediaOptOut = this.SocialMediaOptOut,
             };
+        }
+
+        /// <summary>
+        /// Override of base ToString Method
+        /// </summary>
+        /// <returns>A printable string representing this document</returns>
+        public override string ToString()
+        {
+            bool valid = true;
+            try
+            {
+                this.Validate();
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            var stringBuilder = new StringBuilder(base.ToString());
+            stringBuilder.AppendLine("AdminUser Section");
+            stringBuilder.AppendLine($"Valid?: {valid}");
+            stringBuilder.AppendLine($"Admin: {this.Admin}");
+            stringBuilder.AppendLine($"Active: {this.Active}");
+            stringBuilder.AppendLine($"PayPalName: {this.PayPalName}");
+            stringBuilder.AppendLine($"PhoneNumber: {this.PhoneNumber}");
+            stringBuilder.AppendLine($"StreetAddress: {this.StreetAddress}");
+            stringBuilder.AppendLine($"Birthdate: {this.Birthdate}");
+            stringBuilder.AppendLine($"Age: {this.Age}");
+            stringBuilder.AppendLine($"JoinedDate: {this.JoinedDate}");
+            stringBuilder.AppendLine($"RenewalDate: {this.RenewalDate}");
+            stringBuilder.AppendLine($"TerminatedDate: {this.TerminatedDate}");
+            stringBuilder.AppendLine($"EnteredInFacebookChapter: {this.EnteredInFacebookChapter}");
+            stringBuilder.AppendLine($"EnteredInFacebookWki: {this.EnteredInFacebookWki}");
+            stringBuilder.AppendLine($"NeedsNewMemberBag: {this.NeedsNewMemberBag}");
+            stringBuilder.AppendLine($"WonSurfboard: {this.WonSurfboard}");
+            stringBuilder.AppendLine($"Admin: {this.Admin}");
+            stringBuilder.AppendLine($"DateSurfboardWon: {this.DateSurfboardWon}");
+            stringBuilder.AppendLine($"LifetimeMember: {this.LifetimeMember}");
+            stringBuilder.AppendLine($"SocialMediaOptOut: {this.SocialMediaOptOut}");
+            stringBuilder.AppendLine($"TimeStamp: {this.TimeStamp}");
+
+            return stringBuilder.ToString();
         }
 
         /// <summary>

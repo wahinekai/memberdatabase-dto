@@ -7,7 +7,9 @@
 
 namespace WahineKai.MemberDatabase.Dto.Models
 {
+    using System;
     using System.Collections.Generic;
+    using System.Text;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
 
@@ -40,6 +42,36 @@ namespace WahineKai.MemberDatabase.Dto.Models
 
             // Every user belongs to a chapter
             this.Chapter = Ensure.IsNotNull(() => this.Chapter);
+        }
+
+        /// <summary>
+        /// Override of base ToString Method
+        /// </summary>
+        /// <returns>A printable string representing this document</returns>
+        public override string ToString()
+        {
+            bool valid = true;
+            try
+            {
+                this.Validate();
+            }
+            catch (Exception)
+            {
+                valid = false;
+            }
+
+            var stringBuilder = new StringBuilder(base.ToString());
+            stringBuilder.AppendLine("ReadByAll Section");
+            stringBuilder.AppendLine($"Valid?: {valid}");
+            stringBuilder.AppendLine($"Chapter: {this.Chapter}");
+            stringBuilder.AppendLine("Positions: ");
+
+            foreach (var position in this.Positions)
+            {
+                stringBuilder.Append(position.ToString());
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
