@@ -201,16 +201,23 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Checking to see if there already is a user with email {user.Email}");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(dbUser => dbUser.Email == user.Email)
-                .Take(1)
-                .ToFeedIterator();
+            try
+            { 
+                using var iterator = this.container.GetItemLinqQueryable<T>()
+                    .Where(dbUser => dbUser.Email == user.Email)
+                    .Take(1)
+                    .ToFeedIterator();
 
-            var feedResponse = await iterator.ReadNextAsync();
+                var feedResponse = await iterator.ReadNextAsync();
 
-            // There should be no results
-            Ensure.IsFalse(() => iterator.HasMoreResults);
-            Ensure.AreEqual(() => 0, () => feedResponse.Count);
+                // There should be no results
+                Ensure.IsFalse(() => iterator.HasMoreResults);
+                Ensure.AreEqual(() => 0, () => feedResponse.Count);
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Email is already in the database");
+            }
 
             this.Logger.LogTrace($"Creating user with id {user.Id} and email {user.Email} in Cosmos DB");
 
@@ -237,21 +244,28 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Checking to see if there already is a user with email {updatedUser.Email}");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(dbUser => dbUser.Email == updatedUser.Email)
-                .Take(1)
-                .ToFeedIterator();
-
-            var feedResponse = await iterator.ReadNextAsync();
-
-            // There should be either no results or one user with the same id
-            Ensure.IsFalse(() => iterator.HasMoreResults);
-            Ensure.IsTrue(() => feedResponse.Count <= 1);
-
-            if (feedResponse.Count == 1)
+            try
             {
-                var dbUser = feedResponse.Single(user => user.Email == updatedUser.Email);
-                Ensure.AreEqual(() => updatedUser.Id, () => dbUser.Id);
+                using var iterator = this.container.GetItemLinqQueryable<T>()
+                    .Where(dbUser => dbUser.Email == updatedUser.Email)
+                    .Take(1)
+                    .ToFeedIterator();
+
+                var feedResponse = await iterator.ReadNextAsync();
+
+                // There should be either no results or one user with the same id
+                Ensure.IsFalse(() => iterator.HasMoreResults);
+                Ensure.IsTrue(() => feedResponse.Count <= 1);
+
+                if (feedResponse.Count == 1)
+                {
+                    var dbUser = feedResponse.Single(user => user.Email == updatedUser.Email);
+                    Ensure.AreEqual(() => updatedUser.Id, () => dbUser.Id);
+                }
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Email is already in the database with another user");
             }
 
             this.Logger.LogTrace($"Replacing user with id {id} with new information");
