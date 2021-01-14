@@ -199,6 +199,19 @@ namespace WahineKai.MemberDatabase.Dto
             user = Ensure.IsNotNull(() => user);
             user.Validate();
 
+            this.Logger.LogTrace($"Checking to see if there already is a user with email {user.Email}");
+
+            using var iterator = this.container.GetItemLinqQueryable<T>()
+                .Where(dbUser => dbUser.Email == user.Email)
+                .Take(1)
+                .ToFeedIterator();
+
+            var feedResponse = await iterator.ReadNextAsync();
+
+            // There should be no results
+            Ensure.IsFalse(() => iterator.HasMoreResults);
+            Ensure.AreEqual(() => 0, () => feedResponse.Count);
+
             this.Logger.LogTrace($"Creating user with id {user.Id} and email {user.Email} in Cosmos DB");
 
             // Add user to the database
@@ -221,6 +234,25 @@ namespace WahineKai.MemberDatabase.Dto
             updatedUser = Ensure.IsNotNull(() => updatedUser);
             updatedUser.Validate();
             id = Ensure.IsNotNull(() => id);
+
+            this.Logger.LogTrace($"Checking to see if there already is a user with email {updatedUser.Email}");
+
+            using var iterator = this.container.GetItemLinqQueryable<T>()
+                .Where(dbUser => dbUser.Email == updatedUser.Email)
+                .Take(1)
+                .ToFeedIterator();
+
+            var feedResponse = await iterator.ReadNextAsync();
+
+            // There should be either no results or one user with the same id
+            Ensure.IsFalse(() => iterator.HasMoreResults);
+            Ensure.IsTrue(() => feedResponse.Count <= 1);
+
+            if (feedResponse.Count == 1)
+            {
+                var dbUser = feedResponse.Single(user => user.Email == updatedUser.Email);
+                Ensure.AreEqual(() => updatedUser.Id, () => dbUser.Id);
+            }
 
             this.Logger.LogTrace($"Replacing user with id {id} with new information");
 
