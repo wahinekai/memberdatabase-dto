@@ -53,8 +53,15 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         Hawaii,
 
         /// <summary>
-        /// Maine chapter
+        /// New England chapter
         /// </summary>
-        Maine,
+        [EnumMember(Value = "New England")]
+        NewEngland,
+
+        /// <summary>
+        /// Wahine Kai International member, no chapter
+        /// </summary>
+        [EnumMember(Value = "Wahine Kai International")]
+        WahineKaiInternational,
     }
 }

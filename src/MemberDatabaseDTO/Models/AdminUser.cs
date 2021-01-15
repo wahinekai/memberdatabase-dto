@@ -129,7 +129,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
             replacedUser.Region = updatedUser.Region ?? oldUser.Region;
             replacedUser.Country = updatedUser.Country ?? oldUser.Country;
             replacedUser.Occupation = updatedUser.Occupation ?? oldUser.Occupation;
-            replacedUser.Chapter = updatedUser.Chapter ?? oldUser.Chapter;
+            replacedUser.Chapter = updatedUser.Chapter;
             replacedUser.Birthdate = updatedUser.Birthdate ?? oldUser.Birthdate;
             replacedUser.Level = updatedUser.Level ?? oldUser.Level;
             replacedUser.StartedSurfing = updatedUser.StartedSurfing ?? oldUser.StartedSurfing;

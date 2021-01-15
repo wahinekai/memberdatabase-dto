@@ -12,6 +12,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     using System.Text;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
+    using WahineKai.MemberDatabase.Dto.Enums;
 
     /// <summary>
     /// Extension of users that can be read by all
@@ -26,7 +27,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets the user's chapter, required.  Must belong to set of supported chapters in settings
         /// </summary>
-        public Enums.Chapter? Chapter { get; set; }
+        public Chapter Chapter { get; set; } = Chapter.WahineKaiInternational;
 
         /// <inheritdoc/>
         public new void Validate()
@@ -39,9 +40,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
             {
                 position.Validate();
             }
-
-            // Every user belongs to a chapter
-            this.Chapter = Ensure.IsNotNull(() => this.Chapter);
         }
 
         /// <summary>
