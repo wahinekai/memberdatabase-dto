@@ -72,12 +72,12 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets a value indicating whether the user has been entered in the facebook chapter group
         /// </summary>
-        public ChapterEnteredStatus EnteredInFacebookChapter { get; set; } = ChapterEnteredStatus.Entered;
+        public EnteredStatus EnteredInFacebookChapter { get; set; } = EnteredStatus.Entered;
 
         /// <summary>
         /// Gets or sets a value indicating whether the user has been entered in facebook WKI
         /// </summary>
-        public WkiEnteredStatus EnteredInFacebookWki { get; set; } = WkiEnteredStatus.NotEntered;
+        public EnteredStatus EnteredInFacebookWki { get; set; } = EnteredStatus.Entered;
 
         /// <summary>
         /// Gets or sets a value indicating whether a user needs a new member bag

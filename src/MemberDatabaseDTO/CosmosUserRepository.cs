@@ -202,7 +202,7 @@ namespace WahineKai.MemberDatabase.Dto
             this.Logger.LogTrace($"Checking to see if there already is a user with email {user.Email}");
 
             try
-            { 
+            {
                 using var iterator = this.container.GetItemLinqQueryable<T>()
                     .Where(dbUser => dbUser.Email == user.Email)
                     .Take(1)

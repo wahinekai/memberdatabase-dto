@@ -10,7 +10,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using WahineKai.Common;
     using WahineKai.Common.Contracts;
     using WahineKai.MemberDatabase.Dto.Enums;
 
