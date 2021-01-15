@@ -42,6 +42,7 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         /// or by providing other special services to the club.
         /// This member must have a joined date, but not a renewal or terminated date.
         /// </summary>
+        [EnumMember(Value = "Lifetime Member")]
         LifetimeMember,
 
         /// <summary>
