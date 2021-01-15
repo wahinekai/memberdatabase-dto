@@ -25,11 +25,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
         public bool Admin { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether a member is active, required, defaults to false
-        /// </summary>
-        public bool Active { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a member's PayPal Name, not required
         /// </summary>
         public string? PayPalName { get; set; }
@@ -55,6 +50,11 @@ namespace WahineKai.MemberDatabase.Dto.Models
         public int? Age { get => this.CalculateAge(); }
 
         /// <summary>
+        /// Gets or sets the membership status of the user.
+        /// </summary>
+        public MemberStatus Status { get; set; } = MemberStatus.Pending;
+
+        /// <summary>
         /// Gets or sets the date the user joined the Wahine Kais, required
         /// </summary>
         public DateTime? JoinedDate { get; set; }
@@ -72,12 +72,12 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets a value indicating whether the user has been entered in the facebook chapter group
         /// </summary>
-        public EnteredStatus EnteredInFacebookChapter { get; set; } = EnteredStatus.NotEntered;
+        public ChapterEnteredStatus EnteredInFacebookChapter { get; set; } = ChapterEnteredStatus.Entered;
 
         /// <summary>
         /// Gets or sets a value indicating whether the user has been entered in facebook WKI
         /// </summary>
-        public EnteredStatus EnteredInFacebookWki { get; set; } = EnteredStatus.NotEntered;
+        public WkiEnteredStatus EnteredInFacebookWki { get; set; } = WkiEnteredStatus.NotEntered;
 
         /// <summary>
         /// Gets or sets a value indicating whether a user needs a new member bag
@@ -93,11 +93,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// Gets or sets the date a user has won a surfboard - null if the user hasn't won
         /// </summary>
         public DateTime? DateSurfboardWon { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether a member is a lifetime member of Wahine Kai
-        /// </summary>
-        public bool LifetimeMember { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether a member has opted out of social media
@@ -126,7 +121,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
             replacedUser.Email = updatedUser.Email;
             replacedUser.FirstName = updatedUser.FirstName ?? oldUser.FirstName;
             replacedUser.LastName = updatedUser.LastName ?? oldUser.LastName;
-            replacedUser.Active = updatedUser.Active;
             replacedUser.FacebookName = updatedUser.FacebookName ?? oldUser.FacebookName;
             replacedUser.PayPalName = updatedUser.PayPalName ?? oldUser.PayPalName;
             replacedUser.PhoneNumber = updatedUser.PhoneNumber ?? oldUser.PhoneNumber;
@@ -143,6 +137,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
             replacedUser.SurfSpots = updatedUser.SurfSpots ?? oldUser.SurfSpots;
             replacedUser.PhotoUrl = updatedUser.PhotoUrl ?? oldUser.PhotoUrl;
             replacedUser.Biography = updatedUser.Biography ?? oldUser.Biography;
+            replacedUser.Status = updatedUser.Status;
             replacedUser.JoinedDate = updatedUser.JoinedDate ?? oldUser.JoinedDate;
             replacedUser.RenewalDate = updatedUser.RenewalDate ?? oldUser.RenewalDate;
             replacedUser.TerminatedDate = updatedUser.TerminatedDate ?? oldUser.TerminatedDate;
@@ -153,7 +148,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
             replacedUser.WonSurfboard = updatedUser.WonSurfboard;
             replacedUser.DateSurfboardWon = updatedUser.DateSurfboardWon ?? oldUser.DateSurfboardWon;
             replacedUser.PostalCode = updatedUser.PostalCode ?? oldUser.PostalCode;
-            replacedUser.LifetimeMember = updatedUser.LifetimeMember;
             replacedUser.SocialMediaOptOut = updatedUser.SocialMediaOptOut;
 
             // Validate and return replaced user
@@ -166,26 +160,31 @@ namespace WahineKai.MemberDatabase.Dto.Models
         {
             base.Validate();
 
-            // Every user must have a joined date
-            this.JoinedDate = Ensure.IsNotNull(() => this.JoinedDate);
-
-            // Renewal/Termination Date Validation
-            if (this.Active)
+            // Joined/Renewal/Terminated date validation
+            // Depends on the status of the member
+            switch (this.Status)
             {
-                // Active user, must be lifetime member or have renewal date, no terminated date
-                if (!this.LifetimeMember)
-                {
+                case MemberStatus.Pending:
+                    // Nothing is required
+                    break;
+                case MemberStatus.ActivePaying:
+                    // Joined & Renewal Date Required, terminated date null
+                    this.JoinedDate = Ensure.IsNotNull(() => this.JoinedDate);
                     this.RenewalDate = Ensure.IsNotNull(() => this.RenewalDate);
-                }
-
-                this.TerminatedDate = null;
-            }
-            else
-            {
-                // Inactive user, must have terminated date, no renewal date
-                this.TerminatedDate = Ensure.IsNotNull(() => this.TerminatedDate);
-
-                this.RenewalDate = null;
+                    this.TerminatedDate = null;
+                    break;
+                case MemberStatus.ActiveNonPaying or MemberStatus.LifetimeMember:
+                    // Joined required, renewal & terminated null
+                    this.JoinedDate = Ensure.IsNotNull(() => this.JoinedDate);
+                    this.RenewalDate = null;
+                    this.TerminatedDate = null;
+                    break;
+                case MemberStatus.Terminated:
+                    // Joined & Terminated requried, renewal null
+                    this.JoinedDate = Ensure.IsNotNull(() => this.JoinedDate);
+                    this.RenewalDate = null;
+                    this.TerminatedDate = Ensure.IsNotNull(() => this.JoinedDate);
+                    break;
             }
 
             // If user has won a surfboard, must have the date won
@@ -207,7 +206,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
                 Admin = this.Admin,
                 FirstName = this.FirstName,
                 LastName = this.LastName,
-                Active = this.Active,
+                Status = this.Status,
                 FacebookName = this.FacebookName,
                 PayPalName = this.PayPalName,
                 Email = this.Email,
@@ -235,7 +234,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
                 WonSurfboard = this.WonSurfboard,
                 DateSurfboardWon = this.DateSurfboardWon,
                 PostalCode = this.PostalCode,
-                LifetimeMember = this.LifetimeMember,
                 SocialMediaOptOut = this.SocialMediaOptOut,
             };
         }
@@ -260,7 +258,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
             stringBuilder.AppendLine("AdminUser Section");
             stringBuilder.AppendLine($"Valid?: {valid}");
             stringBuilder.AppendLine($"Admin: {this.Admin}");
-            stringBuilder.AppendLine($"Active: {this.Active}");
+            stringBuilder.AppendLine($"Status: {this.Status}");
             stringBuilder.AppendLine($"PayPalName: {this.PayPalName}");
             stringBuilder.AppendLine($"PhoneNumber: {this.PhoneNumber}");
             stringBuilder.AppendLine($"StreetAddress: {this.StreetAddress}");
@@ -275,7 +273,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
             stringBuilder.AppendLine($"WonSurfboard: {this.WonSurfboard}");
             stringBuilder.AppendLine($"Admin: {this.Admin}");
             stringBuilder.AppendLine($"DateSurfboardWon: {this.DateSurfboardWon}");
-            stringBuilder.AppendLine($"LifetimeMember: {this.LifetimeMember}");
             stringBuilder.AppendLine($"SocialMediaOptOut: {this.SocialMediaOptOut}");
             stringBuilder.AppendLine($"TimeStamp: {this.TimeStamp}");
 
