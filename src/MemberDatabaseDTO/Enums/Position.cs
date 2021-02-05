@@ -56,6 +56,12 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         DirectorOfCommunityServices,
 
         /// <summary>
+        /// Surf mama director for the club
+        /// </summary>
+        [EnumMember(Value = "Surf Mama Director")]
+        SurfMamaDirector,
+
+        /// <summary>
         /// Director of a club chapter
         /// </summary>
         [EnumMember(Value = "Chapter Director")]
