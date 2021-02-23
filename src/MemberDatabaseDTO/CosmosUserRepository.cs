@@ -107,15 +107,14 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public async Task DeleteUserAsync(T user)
+        public async Task DeleteUserByIdAsync(Guid id)
         {
             // Sanity check input
-            Ensure.IsNotNull(() => user);
-            user.Validate();
+            Ensure.IsNotNull(() => id);
 
-            this.Logger.LogTrace($"Deleting user with id {user.Id} and email {user.Email} from the database");
+            this.Logger.LogTrace($"Deleting user with id {id} from the database");
 
-            await this.container.DeleteItemAsync<T>(user.Id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(user.Id.ToString()));
+            await this.container.DeleteItemAsync<T>(id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(id.ToString()));
 
             this.Logger.LogInformation("Deleted 1 user from the database");
         }

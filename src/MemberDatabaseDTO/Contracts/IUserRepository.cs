@@ -36,9 +36,9 @@ namespace WahineKai.MemberDatabase.Dto.Contracts
         /// <summary>
         /// Delete the user given by the id from the database
         /// </summary>
-        /// <param name="user">The user to delete</param>
+        /// <param name="id">The id of the user to delete</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task DeleteUserAsync(T user);
+        public Task DeleteUserByIdAsync(Guid id);
 
         /// <summary>
         /// Gets all users from the repository
