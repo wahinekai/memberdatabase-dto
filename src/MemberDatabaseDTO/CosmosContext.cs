@@ -87,31 +87,31 @@ namespace WahineKai.MemberDatabase.Dto
             // Enum to String Converters
             usersModel
                 .Property(user => user.Chapter)
-                .HasConversion(typeof(EnumToStringConverter<Chapter>));
+                .HasConversion<string>();
 
             usersModel
                 .Property(user => user.Level)
-                .HasConversion(typeof(EnumToStringConverter<Level>));
+                .HasConversion<string>();
 
             usersModel
                 .Property(user => user.Country)
-                .HasConversion(typeof(EnumToStringConverter<Country>));
+                .HasConversion<string>();
 
             usersModel
                 .Property(user => user.EnteredInFacebookChapter)
-                .HasConversion(typeof(EnumToStringConverter<EnteredStatus>));
+                .HasConversion<string>();
 
             usersModel
                 .Property(user => user.EnteredInFacebookWki)
-                .HasConversion(typeof(EnumToStringConverter<EnteredStatus>));
+                .HasConversion<string>();
 
             usersModel
                 .Property(user => user.Status)
-                .HasConversion(typeof(EnumToStringConverter<MemberStatus>));
+                .HasConversion<string>();
 
             usersModel.OwnsMany(user => user.Positions)
                 .Property(position => position.Name)
-                .HasConversion(typeof(EnumToStringConverter<Enums.Position>));
+                .HasConversion<string>();
         }
     }
 }
