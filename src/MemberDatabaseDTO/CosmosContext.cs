@@ -84,6 +84,9 @@ namespace WahineKai.MemberDatabase.Dto
             usersModel.HasPartitionKey(user => user.Id);
             usersModel.HasBaseType(typeof(UserBase));
 
+            usersModel.OwnsMany(user => user.Boards);
+            usersModel.OwnsMany(user => user.SurfSpots);
+
             // Enum to String Converters
             usersModel
                 .Property(user => user.Chapter)
