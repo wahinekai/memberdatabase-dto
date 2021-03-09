@@ -16,7 +16,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// <summary>
     /// Extension of users that can be read by all
     /// </summary>
-    public class ReadByAllUser : ReadByAllWriteByUser, IValidatable
+    public class ReadByAllUser : ReadByAllWriteByUser, IValidatable, IUpdatable<ReadByAllUser>
     {
         /// <summary>
         /// Gets or sets list of user positions
@@ -69,6 +69,20 @@ namespace WahineKai.MemberDatabase.Dto.Models
             }
 
             return stringBuilder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public void Update(ReadByAllUser user)
+        {
+            // Update base
+            base.Update(user);
+
+            // Update Properties
+            this.Positions = user.Positions ?? this.Positions;
+            this.Chapter = user.Chapter;
+
+            // Ensure validation
+            this.Validate();
         }
     }
 }

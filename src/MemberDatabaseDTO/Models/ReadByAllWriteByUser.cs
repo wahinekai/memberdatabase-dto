@@ -20,7 +20,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// <summary>
     /// User type with widest permissions (read by all, write by user, all by admin).
     /// </summary>
-    public class ReadByAllWriteByUser : UserBase, IValidatable
+    public class ReadByAllWriteByUser : UserBase, IValidatable, IUpdatable<ReadByAllWriteByUser>
     {
         /// <summary>
         /// Gets or sets user first name, required
@@ -171,6 +171,32 @@ namespace WahineKai.MemberDatabase.Dto.Models
             }
 
             return stringBuilder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public void Update(ReadByAllWriteByUser user)
+        {
+            // Update base
+            base.Update(user);
+
+            // Update Properties
+            this.FirstName = user.FirstName ?? this.FirstName;
+            this.LastName = user.LastName ?? this.LastName;
+            this.FacebookName = user.FacebookName ?? this.FacebookName;
+            this.City = user.City ?? this.City;
+            this.Region = user.Region ?? this.Region;
+            this.PostalCode = user.PostalCode ?? this.PostalCode;
+            this.Country = user.Country ?? this.Country;
+            this.Occupation = user.Occupation ?? this.Occupation;
+            this.Level = user.Level ?? this.Level;
+            this.PhotoUrl = user.PhotoUrl ?? this.PhotoUrl;
+            this.Biography = user.Biography ?? this.Biography;
+            this.StartedSurfing = user.StartedSurfing ?? this.StartedSurfing;
+            this.Boards = user.Boards ?? this.Boards;
+            this.SurfSpots = user.SurfSpots ?? this.SurfSpots;
+
+            // Ensure validation
+            this.Validate();
         }
     }
 }

@@ -7,10 +7,7 @@
 
 namespace WahineKai.MemberDatabase.Dto
 {
-    using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.Logging;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
     using WahineKai.Common;
     using WahineKai.MemberDatabase.Dto.Properties;
 
@@ -19,6 +16,16 @@ namespace WahineKai.MemberDatabase.Dto
     /// </summary>
     public abstract class CosmosRepositoryBase : RepositoryBase
     {
+        /// <summary>
+        /// Gets Cosmos Configuration
+        /// </summary>
+        private readonly CosmosConfiguration cosmosConfiguration;
+
+        /// <summary>
+        /// Gets Logger Factory
+        /// </summary>
+        private readonly ILoggerFactory loggerFactory;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosRepositoryBase"/> class.
         /// </summary>
@@ -30,34 +37,18 @@ namespace WahineKai.MemberDatabase.Dto
             this.Logger.LogTrace("Construction of Cosmos Repository Base starting");
 
             // Validate input arguments
-            cosmosConfiguration = Ensure.IsNotNull(() => cosmosConfiguration);
-            cosmosConfiguration.Validate();
-
-            // Set database id
-            this.DatabaseId = Ensure.IsNotNullOrWhitespace(() => cosmosConfiguration.DatabaseId);
-
-            // Create custom JSON serializer for enums
-            var jsonSerializationSettings = new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-            };
-            jsonSerializationSettings.Converters.Add(new StringEnumConverter());
-
-            // Create cosmos client
-            var cosmosOptions = new CosmosClientOptions() { Serializer = new CosmosJsonSerializer(jsonSerializationSettings) };
-            this.CosmosClient = new CosmosClient(cosmosConfiguration.ConnectionString, cosmosOptions);
+            this.loggerFactory = Ensure.IsNotNull(() => loggerFactory);
+            this.cosmosConfiguration = Ensure.IsNotNull(() => cosmosConfiguration);
+            this.cosmosConfiguration.Validate();
 
             this.Logger.LogTrace("Construction of Cosmos Repository Base complete");
         }
 
         /// <summary>
-        /// Gets Cosmos DB Configuration
+        /// Uses members to get Cosmos Context
         /// </summary>
-        protected string DatabaseId { get; }
-
-        /// <summary>
-        /// Gets client for interacting with Cosmos DB
-        /// </summary>
-        protected CosmosClient CosmosClient { get; }
+        /// <returns>Cosmos Context</returns>
+        protected CosmosContext GetCosmosContext()
+            => new CosmosContext(this.cosmosConfiguration, this.loggerFactory);
     }
 }

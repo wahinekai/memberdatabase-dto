@@ -17,7 +17,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// <summary>
     /// Base class - includes requried information for all user types
     /// </summary>
-    public abstract class UserBase : IValidatable
+    public abstract class UserBase : IValidatable, IUpdatable<UserBase>
     {
         /// <summary>
         /// Container Id for this model
@@ -72,6 +72,19 @@ namespace WahineKai.MemberDatabase.Dto.Models
             stringBuilder.AppendLine($"Email: {this.Email}");
 
             return stringBuilder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public void Update(UserBase user)
+        {
+            // You can only update users that are the same (have the same id)
+            Ensure.AreEqual(() => this.Id, () => user.Id);
+
+            // Update Properties
+            this.Email = user.Email ?? this.Email;
+
+            // Ensure validation
+            this.Validate();
         }
     }
 }

@@ -9,11 +9,10 @@ namespace WahineKai.MemberDatabase.Dto
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
     using LinqKit;
-    using Microsoft.Azure.Cosmos.Linq;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using WahineKai.Common;
     using WahineKai.MemberDatabase.Dto.Contracts;
@@ -23,49 +22,31 @@ namespace WahineKai.MemberDatabase.Dto
     /// <summary>
     /// Implementaion of IUserRepository
     /// </summary>
-    /// <typeparam name="T">The type of user to return</typeparam>
-    public sealed class CosmosUserRepository<T> : CosmosRepositoryBase, IUserRepository<T>
-        where T : ReadByAllUser
+    public sealed class CosmosUserRepository : CosmosRepositoryBase, IUserRepository
     {
-        private readonly Microsoft.Azure.Cosmos.Container container;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="CosmosUserRepository{T}"/> class.
+        /// Initializes a new instance of the <see cref="CosmosUserRepository"/> class.
         /// </summary>
         /// <param name="cosmosConfiguration">Configuration to create connection with an Azure Cosmos DB Database</param>
         /// <param name="loggerFactory">Logger factory to create a logger</param>
         public CosmosUserRepository(CosmosConfiguration cosmosConfiguration, ILoggerFactory loggerFactory)
             : base(cosmosConfiguration, loggerFactory)
         {
-            this.Logger.LogTrace("Beginning construction of Cosmos User Repository");
-
-            this.container = this.CosmosClient.GetContainer(this.DatabaseId, UserBase.ContainerId);
-
-            this.Logger.LogTrace("Construction of Cosmos User Repository complete");
         }
 
         /// <inheritdoc/>
-        public async Task<T> GetUserByEmailAsync(string email)
+        public async Task<AdminUser> GetUserByEmailAsync(string email)
         {
             // Sanity check input
             email = Ensure.IsNotNullOrWhitespace(() => email);
 
             this.Logger.LogTrace($"Getting user with email {email} from Cosmos DB");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                #pragma warning disable CS8602 // All users in database will have email
-                .Where(user => user.Email.Equals(email))
-                #pragma warning restore CS8602
-                .Take(1)
-                .ToFeedIterator();
+            using var db = this.GetCosmosContext();
 
-            var feedResponse = await iterator.ReadNextAsync();
-
-            // There should be only one result
-            Ensure.IsFalse(() => iterator.HasMoreResults);
-            Ensure.AreEqual(() => 1, () => feedResponse.Count);
-
-            var maybeNullUser = feedResponse.Single(user => user.Email == email);
+            var maybeNullUser = await db.Users
+                .Where(user => user.Email == email)
+                .SingleAsync();
 
             // Ensure user is not null
             var user = Ensure.IsNotNull(() => maybeNullUser);
@@ -77,25 +58,18 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public async Task<T> GetUserByIdAsync(Guid id)
+        public async Task<AdminUser> GetUserByIdAsync(Guid id)
         {
             // Sanity check input
             id = Ensure.IsNotNull(() => id);
 
             this.Logger.LogTrace($"Getting user with id {id} from Cosmos DB");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(user => id.ToString() == user.Id.ToString())
-                .Take(1)
-                .ToFeedIterator();
+            using var db = this.GetCosmosContext();
 
-            var feedResponse = await iterator.ReadNextAsync();
-
-            // There should be only one result
-            Ensure.IsFalse(() => iterator.HasMoreResults);
-            Ensure.AreEqual(() => 1, () => feedResponse.Count);
-
-            var maybeNullUser = feedResponse.Single(user => id.Equals(user.Id));
+            var maybeNullUser = await db.Users
+                .Where(user => user.Id == id)
+                .SingleAsync();
 
             // Ensure user is not null
             var user = Ensure.IsNotNull(() => maybeNullUser);
@@ -114,38 +88,31 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Deleting user with id {id} from the database");
 
-            await this.container.DeleteItemAsync<T>(id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(id.ToString()));
+            using var db = this.GetCosmosContext();
+
+            // Get user from database
+            var user = await db.Users
+                .Where(user => user.Id == id)
+                .SingleAsync();
+
+            // Remove user and save
+            db.Remove(user);
+            await db.SaveChangesAsync();
 
             this.Logger.LogInformation("Deleted 1 user from the database");
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<T>> GetAllUsersAsync()
+        public async Task<ICollection<AdminUser>> GetAllUsersAsync()
         {
             this.Logger.LogDebug("Getting all users from Cosmos DB");
 
-            using var iterator = this.container.GetItemQueryIterator<T>();
-
-            var users = new Collection<T>();
-
-            while (iterator.HasMoreResults)
-            {
-                foreach (var user in await iterator.ReadNextAsync())
-                {
-                    Ensure.IsNotNull(() => user);
-                    user.Validate();
-
-                    users.Add(user);
-                }
-            }
-
-            this.Logger.LogInformation($"Got {users.Count} users from Cosmos DB");
-
-            return users;
+            using var db = this.GetCosmosContext();
+            return await db.Users.ToListAsync();
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<T>> GetUsersByQueryAsync(string query)
+        public async Task<ICollection<AdminUser>> GetUsersByQueryAsync(string query)
         {
             // Sanity check input
             query = Ensure.IsNotNullOrWhitespace(() => query);
@@ -156,7 +123,7 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogDebug($"Getting users matching query \"{query}\" from Cosmos DB");
 
-            var predicate = PredicateBuilder.New<T>();
+            var predicate = PredicateBuilder.New<AdminUser>();
 
             // Add all predicates
             foreach (var q in queries)
@@ -169,22 +136,8 @@ namespace WahineKai.MemberDatabase.Dto
                 predicate = predicate.Or(user => user.Occupation != null && user.Occupation.ToLower().Contains(q));
             }
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(predicate)
-                .ToFeedIterator();
-
-            var users = new Collection<T>();
-
-            while (iterator.HasMoreResults)
-            {
-                foreach (var user in await iterator.ReadNextAsync())
-                {
-                    Ensure.IsNotNull(() => user);
-                    user.Validate();
-
-                    users.Add(user);
-                }
-            }
+            using var db = this.GetCosmosContext();
+            var users = await db.Users.Where(predicate).ToListAsync();
 
             this.Logger.LogInformation($"Got {users.Count} users from Cosmos DB");
 
@@ -192,7 +145,7 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public async Task<T> CreateUserAsync(T user)
+        public async Task<AdminUser> CreateUserAsync(AdminUser user)
         {
             // Input sanity checking
             user = Ensure.IsNotNull(() => user);
@@ -200,20 +153,11 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Checking to see if there already is a user with email {user.Email}");
 
-            try
-            {
-                using var iterator = this.container.GetItemLinqQueryable<T>()
-                    .Where(dbUser => dbUser.Email == user.Email)
-                    .Take(1)
-                    .ToFeedIterator();
+            using var db = this.GetCosmosContext();
 
-                var feedResponse = await iterator.ReadNextAsync();
+            var existingUserCount = await db.Users.Where(dbUser => dbUser.Email == user.Email).CountAsync();
 
-                // There should be no results
-                Ensure.IsFalse(() => iterator.HasMoreResults);
-                Ensure.AreEqual(() => 0, () => feedResponse.Count);
-            }
-            catch (Exception)
+            if (existingUserCount > 0)
             {
                 throw new ArgumentException("Email is already in the database");
             }
@@ -221,10 +165,11 @@ namespace WahineKai.MemberDatabase.Dto
             this.Logger.LogTrace($"Creating user with id {user.Id} and email {user.Email} in Cosmos DB");
 
             // Add user to the database
-            var userResponse = await this.container.CreateItemAsync(user);
+            var entry = await db.AddAsync(user);
+            db.SaveChanges();
 
             // Check that the user has been added and is valid
-            var userFromDatabase = userResponse.Resource;
+            var userFromDatabase = entry.Entity;
             userFromDatabase = Ensure.IsNotNull(() => userFromDatabase);
             userFromDatabase.Validate();
 
@@ -234,51 +179,40 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public async Task<T> ReplaceUserAsync(T updatedUser, Guid id)
+        public async Task<AdminUser> UpdateUserAsync<T>(T updatedUser)
+            where T : UserBase
         {
             // Input sanity checking
             updatedUser = Ensure.IsNotNull(() => updatedUser);
             updatedUser.Validate();
-            id = Ensure.IsNotNull(() => id);
 
             this.Logger.LogTrace($"Checking to see if there already is a user with email {updatedUser.Email}");
 
-            try
+            using var db = this.GetCosmosContext();
+
+            var invalidUsersCount = await db.Users
+                .Where(user => user.Email == updatedUser.Email && user.Id != updatedUser.Id)
+                .CountAsync();
+
+            if (invalidUsersCount > 0)
             {
-                using var iterator = this.container.GetItemLinqQueryable<T>()
-                    .Where(dbUser => dbUser.Email == updatedUser.Email)
-                    .Take(1)
-                    .ToFeedIterator();
-
-                var feedResponse = await iterator.ReadNextAsync();
-
-                // There should be either no results or one user with the same id
-                Ensure.IsFalse(() => iterator.HasMoreResults);
-                Ensure.IsTrue(() => feedResponse.Count <= 1);
-
-                if (feedResponse.Count == 1)
-                {
-                    var dbUser = feedResponse.Single(user => user.Email == updatedUser.Email);
-                    Ensure.AreEqual(() => updatedUser.Id, () => dbUser.Id);
-                }
-            }
-            catch (Exception)
-            {
-                throw new ArgumentException("Email is already in the database with another user");
+                throw new ArgumentException("Another user has that Email!");
             }
 
-            this.Logger.LogTrace($"Replacing user with id {id} with new information");
+            this.Logger.LogTrace($"Updating user with id {updatedUser.Id} with new information");
 
-            var userResponse = await this.container.ReplaceItemAsync(updatedUser, id.ToString());
+            var user = await db.Users.Where(user => user.Id == updatedUser.Id).SingleAsync();
+            user.Update(updatedUser);
 
             // Check that the user has been added and is valid
-            var userFromDatabase = userResponse.Resource;
-            userFromDatabase = Ensure.IsNotNull(() => userFromDatabase);
-            userFromDatabase.Validate();
+            user.Validate();
 
-            this.Logger.LogInformation("Replaced 1 user in the database");
+            // Save changes in the database
+            await db.SaveChangesAsync();
 
-            return userFromDatabase;
+            this.Logger.LogInformation("Updated 1 user in the database");
+
+            return user;
         }
     }
 }

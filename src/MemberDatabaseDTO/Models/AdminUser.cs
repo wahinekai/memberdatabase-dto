@@ -17,7 +17,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// <summary>
     /// Model of a user with all fields - to be worked on by admin
     /// </summary>
-    public class AdminUser : ReadByAllUser, IValidatable
+    public class AdminUser : ReadByAllUser, IValidatable, IUpdatable<AdminUser>
     {
         /// <summary>
         /// Gets or sets a value indicating whether a user is an admin user
@@ -105,56 +105,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
         [JsonProperty(PropertyName = "_ts")]
         public long? TimeStamp { get; set; }
 
-        /// <summary>
-        /// Clone the old user, and replace it with the parameters of the updated user
-        /// </summary>
-        /// <param name="oldUser">READONLY old user to update</param>
-        /// <param name="updatedUser">READONLY updated user to replace the parameters of the old user</param>
-        /// <returns>A new user with the parameters of the old user replaced by the new user.</returns>
-        public static AdminUser Replace(AdminUser oldUser, AdminUser updatedUser)
-        {
-            // Create a deep copy of oldUser
-            var replacedUser = oldUser.Clone();
-
-            // Update updatable parameters
-            replacedUser.Admin = updatedUser.Admin;
-            replacedUser.Email = updatedUser.Email;
-            replacedUser.FirstName = updatedUser.FirstName ?? oldUser.FirstName;
-            replacedUser.LastName = updatedUser.LastName ?? oldUser.LastName;
-            replacedUser.FacebookName = updatedUser.FacebookName ?? oldUser.FacebookName;
-            replacedUser.PayPalName = updatedUser.PayPalName ?? oldUser.PayPalName;
-            replacedUser.PhoneNumber = updatedUser.PhoneNumber ?? oldUser.PhoneNumber;
-            replacedUser.StreetAddress = updatedUser.StreetAddress ?? oldUser.StreetAddress;
-            replacedUser.City = updatedUser.City ?? oldUser.City;
-            replacedUser.Region = updatedUser.Region ?? oldUser.Region;
-            replacedUser.Country = updatedUser.Country ?? oldUser.Country;
-            replacedUser.Occupation = updatedUser.Occupation ?? oldUser.Occupation;
-            replacedUser.Chapter = updatedUser.Chapter;
-            replacedUser.Birthdate = updatedUser.Birthdate ?? oldUser.Birthdate;
-            replacedUser.Level = updatedUser.Level ?? oldUser.Level;
-            replacedUser.StartedSurfing = updatedUser.StartedSurfing ?? oldUser.StartedSurfing;
-            replacedUser.Boards = updatedUser.Boards ?? oldUser.Boards;
-            replacedUser.SurfSpots = updatedUser.SurfSpots ?? oldUser.SurfSpots;
-            replacedUser.PhotoUrl = updatedUser.PhotoUrl ?? oldUser.PhotoUrl;
-            replacedUser.Biography = updatedUser.Biography ?? oldUser.Biography;
-            replacedUser.Status = updatedUser.Status;
-            replacedUser.JoinedDate = updatedUser.JoinedDate ?? oldUser.JoinedDate;
-            replacedUser.RenewalDate = updatedUser.RenewalDate ?? oldUser.RenewalDate;
-            replacedUser.TerminatedDate = updatedUser.TerminatedDate ?? oldUser.TerminatedDate;
-            replacedUser.Positions = updatedUser.Positions ?? oldUser.Positions;
-            replacedUser.EnteredInFacebookChapter = updatedUser.EnteredInFacebookChapter;
-            replacedUser.EnteredInFacebookWki = updatedUser.EnteredInFacebookWki;
-            replacedUser.NeedsNewMemberBag = updatedUser.NeedsNewMemberBag;
-            replacedUser.WonSurfboard = updatedUser.WonSurfboard;
-            replacedUser.DateSurfboardWon = updatedUser.DateSurfboardWon ?? oldUser.DateSurfboardWon;
-            replacedUser.PostalCode = updatedUser.PostalCode ?? oldUser.PostalCode;
-            replacedUser.SocialMediaOptOut = updatedUser.SocialMediaOptOut;
-
-            // Validate and return replaced user
-            replacedUser.Validate();
-            return replacedUser;
-        }
-
         /// <inheritdoc/>
         public new void Validate()
         {
@@ -192,50 +142,6 @@ namespace WahineKai.MemberDatabase.Dto.Models
             {
                 Ensure.IsNotNull(() => this.DateSurfboardWon);
             }
-        }
-
-        /// <summary>
-        /// Creates a deep copy of the object
-        /// </summary>
-        /// <returns>The new user cloned from this user</returns>
-        public AdminUser Clone()
-        {
-            return new AdminUser
-            {
-                Id = this.Id,
-                Admin = this.Admin,
-                FirstName = this.FirstName,
-                LastName = this.LastName,
-                Status = this.Status,
-                FacebookName = this.FacebookName,
-                PayPalName = this.PayPalName,
-                Email = this.Email,
-                PhoneNumber = this.PhoneNumber,
-                StreetAddress = this.StreetAddress,
-                City = this.City,
-                Region = this.Region,
-                Country = this.Country,
-                Occupation = this.Occupation,
-                Chapter = this.Chapter,
-                Birthdate = this.Birthdate,
-                Level = this.Level,
-                StartedSurfing = this.StartedSurfing,
-                Boards = this.Boards,
-                SurfSpots = this.SurfSpots,
-                PhotoUrl = this.PhotoUrl,
-                Biography = this.Biography,
-                JoinedDate = this.JoinedDate,
-                RenewalDate = this.RenewalDate,
-                TerminatedDate = this.TerminatedDate,
-                Positions = this.Positions,
-                EnteredInFacebookChapter = this.EnteredInFacebookChapter,
-                EnteredInFacebookWki = this.EnteredInFacebookWki,
-                NeedsNewMemberBag = this.NeedsNewMemberBag,
-                WonSurfboard = this.WonSurfboard,
-                DateSurfboardWon = this.DateSurfboardWon,
-                PostalCode = this.PostalCode,
-                SocialMediaOptOut = this.SocialMediaOptOut,
-            };
         }
 
         /// <summary>
@@ -277,6 +183,34 @@ namespace WahineKai.MemberDatabase.Dto.Models
             stringBuilder.AppendLine($"TimeStamp: {this.TimeStamp}");
 
             return stringBuilder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public void Update(AdminUser user)
+        {
+            // Update base
+            base.Update(user);
+
+            // Update Properties
+            this.Positions = user.Positions ?? this.Positions;
+            this.Admin = user.Admin;
+            this.PayPalName = user.PayPalName ?? this.PayPalName;
+            this.PhoneNumber = user.PhoneNumber ?? this.PhoneNumber;
+            this.StreetAddress = user.StreetAddress ?? this.StreetAddress;
+            this.Birthdate = user.Birthdate ?? this.Birthdate;
+            this.Status = user.Status;
+            this.JoinedDate = user.JoinedDate ?? this.JoinedDate;
+            this.RenewalDate = user.RenewalDate ?? this.RenewalDate;
+            this.TerminatedDate = user.TerminatedDate ?? this.TerminatedDate;
+            this.EnteredInFacebookChapter = user.EnteredInFacebookChapter;
+            this.EnteredInFacebookWki = user.EnteredInFacebookWki;
+            this.NeedsNewMemberBag = user.NeedsNewMemberBag;
+            this.DateSurfboardWon = user.DateSurfboardWon ?? this.DateSurfboardWon;
+            this.WonSurfboard = user.WonSurfboard;
+            this.SocialMediaOptOut = user.SocialMediaOptOut;
+
+            // Ensure validation
+            this.Validate();
         }
 
         /// <summary>

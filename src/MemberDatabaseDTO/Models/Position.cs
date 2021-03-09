@@ -15,7 +15,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// <summary>
     /// Object representing a position a user can hold
     /// </summary>
-    public class Position : IValidatable
+    public class Position : IValidatable, IUpdatable<Position>
     {
         /// <summary>
         /// Gets or sets the leadership position of the user, required
@@ -66,6 +66,18 @@ namespace WahineKai.MemberDatabase.Dto.Models
             stringBuilder.AppendLine($"Date Ended: {this.Ended}");
 
             return stringBuilder.ToString();
+        }
+
+        /// <inheritdoc/>
+        public void Update(Position position)
+        {
+            // Update Properties
+            this.Name = position.Name ?? this.Name;
+            this.Started = position.Started ?? this.Started;
+            this.Ended = position.Ended ?? this.Ended;
+
+            // Ensure validation
+            this.Validate();
         }
     }
 }
