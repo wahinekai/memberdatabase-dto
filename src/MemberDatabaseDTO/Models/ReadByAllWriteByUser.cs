@@ -85,12 +85,12 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets a member's boards
         /// </summary>
-        public ICollection<string> Boards { get; set; } = new Collection<string>();
+        public IList<string> Boards { get; set; } = new Collection<string>();
 
         /// <summary>
         /// Gets or sets a member's usual surf spots
         /// </summary>
-        public ICollection<string> SurfSpots { get; set; } = new Collection<string>();
+        public IList<string> SurfSpots { get; set; } = new Collection<string>();
 
         /// <inheritdoc/>
         public new void Validate()
