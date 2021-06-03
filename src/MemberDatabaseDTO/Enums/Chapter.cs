@@ -21,7 +21,7 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         SanDiego,
 
         /// <summary>
-        /// Orange County & Los Angeles chapter
+        /// Orange County and Los Angeles chapter
         /// </summary>
         [EnumMember(Value = "Orange County/Los Angeles")]
         OrangeCountyLosAngeles,

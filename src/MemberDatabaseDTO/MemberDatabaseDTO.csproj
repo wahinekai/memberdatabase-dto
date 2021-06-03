@@ -8,6 +8,7 @@
     <Company>Wahine Kai</Company>
     <PackageDescription>Data Transfer Objects for Wahine Kai's Member Database</PackageDescription>
     <RepositoryUrl>https://github.com/wahinekai/memberdatabase-dto</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="StatesAndProvinces" Version="1.0.0" />
+    <PackageReference Include="CountryData.Standard" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="LinqKit" Version="1.1.21" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.8.0-beta.1" />

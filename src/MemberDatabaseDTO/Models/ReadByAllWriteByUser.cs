@@ -12,7 +12,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text;
-    using StatesAndProvinces;
+    using CountryData.Standard;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
     using WahineKai.MemberDatabase.Dto.Enums;
@@ -22,6 +22,11 @@ namespace WahineKai.MemberDatabase.Dto.Models
     /// </summary>
     public class ReadByAllWriteByUser : UserBase, IValidatable
     {
+        /// <summary>
+        /// Country Helper from CountryData.Standard for Country and State Validation
+        /// </summary>
+        protected static readonly CountryHelper CountryHelper = new CountryHelper();
+
         /// <summary>
         /// Gets or sets user first name, required
         /// </summary>
@@ -55,7 +60,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets the user's country, not required.  Must belong to set of supported countries in settings.
         /// </summary>
-        public Country? Country { get; set; }
+        public string? Country { get; set; }
 
         /// <summary>
         /// Gets or sets the user's occupation, not required
@@ -107,21 +112,13 @@ namespace WahineKai.MemberDatabase.Dto.Models
                 // Country cannot be null if Region is
                 Ensure.IsNotNull(() => this.Country);
 
-                #pragma warning disable CS8629 // Nullable value checked for above
+                var country = CountryHelper.GetCountryData()
+                    .Where(country => country.CountryName == this.Country)
+                    .Single();
 
-                // Cast country to CountrySelection to check for states
-                var regions = Factory.Make((CountrySelection)this.Country);
-
-                #pragma warning restore CS8629
-
-                // Map to region names
-                var regionNames = regions.Select(region => region.Name);
-
-                // Check to see if region name contains the requested region
-                if (!regionNames.Contains(this.Region))
-                {
-                    throw new ArgumentException($"{this.Region} is not a supported region");
-                }
+                Ensure.AreEqual(
+                    () => 1,
+                    country.Regions.Where(region => region.Name == this.Region).Count);
             }
         }
 
