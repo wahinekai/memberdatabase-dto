@@ -118,7 +118,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
 
             // Update updatable parameters
             replacedUser.Admin = updatedUser.Admin;
-            replacedUser.Email = updatedUser.Email;
+            replacedUser.Email = updatedUser.Email ?? oldUser.Email;
             replacedUser.FirstName = updatedUser.FirstName ?? oldUser.FirstName;
             replacedUser.LastName = updatedUser.LastName ?? oldUser.LastName;
             replacedUser.FacebookName = updatedUser.FacebookName ?? oldUser.FacebookName;
