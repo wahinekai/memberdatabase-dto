@@ -158,9 +158,14 @@ namespace WahineKai.MemberDatabase.Dto
 
             var allUsers = await this.GetAllUsersAsync();
 
-            var usersInSearch = allUsers.Where(user => idList.Any(id => id == user.Id)).ToList();
+            var usersInSearch = allUsers.Join(idList, user => user.Id, id => id, (user, id) => user).ToList();
 
             this.Logger.LogInformation($"Got {usersInSearch.Count} users from Cosmos DB");
+
+            foreach (var user in usersInSearch)
+            {
+                this.Logger.LogInformation(user.ToString());
+            }
 
             return usersInSearch;
         }
