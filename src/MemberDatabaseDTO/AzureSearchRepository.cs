@@ -61,7 +61,7 @@ namespace WahineKai.MemberDatabase.Dto
             var queryNotNull = query ?? "*";
 
             // Get result of search
-            var searchResponse = await this.searchClient.SearchAsync<ModelBase>(queryNotNull);
+            var searchResponse = await this.searchClient.SearchAsync<SearchResult>(queryNotNull);
 
             // Cast async & paginated result to list
             var resultsList = await searchResponse.Value.GetResultsAsync().ToListAsync();
@@ -77,7 +77,7 @@ namespace WahineKai.MemberDatabase.Dto
             Ensure.IsTrue(() => this.CanSuggest);
 
             // Get Suggestion Response
-            var suggestResponse = await this.searchClient.SuggestAsync<ModelBase>(partialQuery, this.suggesterName);
+            var suggestResponse = await this.searchClient.SuggestAsync<SearchResult>(partialQuery, this.suggesterName);
 
             // Remove Azure wrappers & return as a list
             return suggestResponse.Value.Results.Select(result => result.Document.Id).ToList();
