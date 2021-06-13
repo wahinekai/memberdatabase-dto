@@ -62,10 +62,12 @@ namespace WahineKai.MemberDatabase.Dto.Contracts
         public Task<T> ReplaceUserAsync(T updatedUser, Guid id);
 
         /// <summary>
-        /// Get all users that match with a query
+        /// Gets all users specified in the enumerable of Ids
+        /// Doesn't assume anything about format of Id collection (sets as enumerable)
+        /// but returns them in an ordered list
         /// </summary>
-        /// <param name="query">The query to match users from</param>
+        /// <param name="idList">The list of user Ids</param>
         /// <returns>A Collection of users</returns>
-        public Task<ICollection<T>> GetUsersByQueryAsync(string query);
+        public Task<IList<T>> GetUsersByIdCollectionAsync(IEnumerable<Guid> idList);
     }
 }

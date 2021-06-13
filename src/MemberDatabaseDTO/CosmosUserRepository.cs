@@ -145,35 +145,22 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<T>> GetUsersByQueryAsync(string query)
+        public async Task<IList<T>> GetUsersByIdCollectionAsync(IEnumerable<Guid> idList)
         {
             // Sanity check input
-            query = Ensure.IsNotNullOrWhitespace(() => query);
-            query = query.ToLower();
+            idList = Ensure.IsNotNull(() => idList);
 
-            // Get list of all queries
-            var queries = query.Split();
-
-            this.Logger.LogDebug($"Getting users matching query \"{query}\" from Cosmos DB");
-
-            var predicate = PredicateBuilder.New<T>();
-
-            // Add all predicates
-            foreach (var q in queries)
+            // If empty, return new list
+            if (idList.Count() == 0)
             {
-                predicate = predicate.Or(user => user.FirstName != null && user.FirstName.ToLower().Contains(q));
-                predicate = predicate.Or(user => user.LastName != null && user.LastName.ToLower().Contains(q));
-                predicate = predicate.Or(user => user.FacebookName != null && user.FacebookName.ToLower().Contains(q));
-                predicate = predicate.Or(user => user.City != null && user.City.ToLower().Contains(q));
-                predicate = predicate.Or(user => user.Region != null && user.Region.ToLower().Contains(q));
-                predicate = predicate.Or(user => user.Occupation != null && user.Occupation.ToLower().Contains(q));
+                return new List<T>();
             }
 
             using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(predicate)
+                .Where(user => idList.Any(id => id == user.Id))
                 .ToFeedIterator();
 
-            var users = new Collection<T>();
+            var users = new List<T>();
 
             while (iterator.HasMoreResults)
             {

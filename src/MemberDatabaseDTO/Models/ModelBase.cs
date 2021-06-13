@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="UserBase.cs" company="Wahine Kai">
+// <copyright file="ModelBase.cs" company="Wahine Kai">
 // Copyright (c) Wahine Kai. All rights reserved.
 // Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
 // </copyright>
@@ -8,41 +8,28 @@
 namespace WahineKai.MemberDatabase.Dto.Models
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
     using System.Text;
     using Newtonsoft.Json;
     using WahineKai.Common;
     using WahineKai.Common.Contracts;
 
     /// <summary>
-    /// Base class - includes requried information for all user types
+    /// Base class for all models in the system.
+    /// All models must inherit (directly or indirectly) from this.
     /// </summary>
-    public abstract class UserBase : ModelBase, IValidatable
+    public class ModelBase : IValidatable
     {
         /// <summary>
-        /// Container Id for this model
+        /// Gets Azure Cosmos DB id for this user
         /// </summary>
-        public const string ContainerId = "Users";
-
-        /// <summary>
-        /// Partion key for this container
-        /// </summary>
-        public const string PartitionKey = "/id";
-
-        /// <summary>
-        /// Gets or sets user email address, required
-        /// </summary>
-        [EmailAddress]
-        public string? Email { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public virtual Guid Id { get; init; } = Guid.NewGuid();
 
         /// <inheritdoc/>
-        public new void Validate()
+        public void Validate()
         {
-            // Validate base
-            base.Validate();
-
-            // Email is required
-            this.Email = Ensure.IsNotNullOrWhitespace(() => this.Email);
+            // Must have ID
+            Ensure.IsNotNull(() => this.Id);
         }
 
         /// <summary>
@@ -61,12 +48,11 @@ namespace WahineKai.MemberDatabase.Dto.Models
                 valid = false;
             }
 
-            var stringBuilder = new StringBuilder(base.ToString());
-            stringBuilder.AppendLine("User Model");
-            stringBuilder.AppendLine("UserBase Section");
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("Printing Model");
+            stringBuilder.AppendLine("ModelBase Section");
             stringBuilder.AppendLine($"Valid?: {valid}");
             stringBuilder.AppendLine($"id: {this.Id}");
-            stringBuilder.AppendLine($"Email: {this.Email}");
 
             return stringBuilder.ToString();
         }
