@@ -162,11 +162,6 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogInformation($"Got {usersInSearch.Count} users from Cosmos DB");
 
-            foreach (var user in usersInSearch)
-            {
-                this.Logger.LogInformation(user.ToString());
-            }
-
             return usersInSearch;
         }
 

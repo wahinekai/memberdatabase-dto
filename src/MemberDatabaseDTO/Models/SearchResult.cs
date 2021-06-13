@@ -8,7 +8,6 @@
 namespace WahineKai.MemberDatabase.Dto.Models
 {
     using System;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// Model for return from a search
@@ -18,7 +17,7 @@ namespace WahineKai.MemberDatabase.Dto.Models
         /// <summary>
         /// Gets or sets Azure Cosmos DB id for this user
         /// </summary>
-        [JsonProperty(PropertyName = "id")]
-        public virtual Guid Id { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Lower case required for Azure Search")]
+        public virtual Guid id { get; set; }
     }
 }

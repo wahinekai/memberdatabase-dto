@@ -67,7 +67,7 @@ namespace WahineKai.MemberDatabase.Dto
             var resultsList = await searchResponse.Value.GetResultsAsync().ToListAsync();
 
             // Get document itself - remove SearchResult wrapper
-            return resultsList.Select(searchResult => searchResult.Document.Id).ToList();
+            return resultsList.Select(searchResult => searchResult.Document.id).ToList();
         }
 
         /// <inheritdoc/>
@@ -80,7 +80,7 @@ namespace WahineKai.MemberDatabase.Dto
             var suggestResponse = await this.searchClient.SuggestAsync<SearchResult>(partialQuery, this.suggesterName);
 
             // Remove Azure wrappers & return as a list
-            return suggestResponse.Value.Results.Select(result => result.Document.Id).ToList();
+            return suggestResponse.Value.Results.Select(result => result.Document.id).ToList();
         }
 
         /// <inheritdoc/>
