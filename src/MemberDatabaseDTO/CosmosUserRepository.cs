@@ -156,26 +156,13 @@ namespace WahineKai.MemberDatabase.Dto
                 return new List<T>();
             }
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
-                .Where(user => idList.Any(id => id == user.Id))
-                .ToFeedIterator();
+            var allUsers = await this.GetAllUsersAsync();
 
-            var users = new List<T>();
+            var usersInSearch = allUsers.Where(user => idList.Any(id => id == user.Id)).ToList();
 
-            while (iterator.HasMoreResults)
-            {
-                foreach (var user in await iterator.ReadNextAsync())
-                {
-                    Ensure.IsNotNull(() => user);
-                    user.Validate();
+            this.Logger.LogInformation($"Got {usersInSearch.Count} users from Cosmos DB");
 
-                    users.Add(user);
-                }
-            }
-
-            this.Logger.LogInformation($"Got {users.Count} users from Cosmos DB");
-
-            return users;
+            return usersInSearch;
         }
 
         /// <inheritdoc/>
