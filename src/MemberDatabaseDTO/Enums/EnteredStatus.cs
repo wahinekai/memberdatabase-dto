@@ -29,5 +29,10 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         /// The user has accepted their invitation to the system
         /// </summary>
         Pending,
+
+        /// <summary>
+        /// The user has terminated their membership with Wahine Kai
+        /// </summary>
+        Terminated,
     }
 }
