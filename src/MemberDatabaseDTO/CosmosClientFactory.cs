@@ -18,7 +18,7 @@ namespace WahineKai.MemberDatabase.Dto
     /// <summary>
     /// Base class for repositories interfacing with Cosmos DB
     /// </summary>
-    public sealed class CosmosClientFactory : ICosmosClientFactory, IDisposable
+    public sealed class CosmosClientFactory : ICosmosClientFactory
     {
         /// <summary>
         /// The options to be used when creating clients in this factory.
@@ -47,15 +47,6 @@ namespace WahineKai.MemberDatabase.Dto
         }
 
         /// <inheritdoc/>
-        public void Dispose()
-        {
-            foreach (var client in this.existingClients.Values)
-            {
-                client.Dispose();
-            }
-        }
-
-        /// <inheritdoc/>
         public CosmosClient GetCosmosClient(string connectionString)
         {
             connectionString = Ensure.IsNotNullOrWhitespace(() => connectionString);
@@ -66,7 +57,7 @@ namespace WahineKai.MemberDatabase.Dto
                 return this.existingClients[connectionString];
             }
 
-            using var newCosmosClient = new CosmosClient(connectionString, this.cosmosOptions);
+            var newCosmosClient = new CosmosClient(connectionString, this.cosmosOptions);
             this.existingClients.Add(connectionString, newCosmosClient);
             return newCosmosClient;
         }
