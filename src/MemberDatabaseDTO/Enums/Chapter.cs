@@ -29,7 +29,8 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         /// <summary>
         /// Ventura chapter
         /// </summary>
-        Ventura,
+        [EnumMember(Value = "Ventura/Santa Barbara")]
+        VenturaSantaBarbara,
 
         /// <summary>
         /// Santa Cruz/San Francisco chapter
