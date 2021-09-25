@@ -7,8 +7,10 @@
 
 namespace WahineKai.MemberDatabase.Dto
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
+    using Azure.Storage.Blobs.Models;
     using Microsoft.Extensions.Logging;
     using WahineKai.Common;
     using WahineKai.MemberDatabase.Dto.Contracts;
@@ -38,7 +40,8 @@ namespace WahineKai.MemberDatabase.Dto
             pictureStream = Ensure.IsNotNull(() => pictureStream);
 
             var blobClient = this.BlobContainerClient.GetBlobClient(fileName);
-            var blobResponse = await blobClient.UploadAsync(pictureStream, overwrite: true);
+            var blobResponse = await this.WithRetriesAsync<BlobContentInfo, Exception>(
+                async () => await blobClient.UploadAsync(pictureStream, overwrite: true));
             return blobClient.Uri.AbsoluteUri;
         }
     }

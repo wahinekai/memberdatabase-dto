@@ -9,9 +9,8 @@ namespace WahineKai.MemberDatabase.Dto
 {
     using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.Logging;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
     using WahineKai.Common;
+    using WahineKai.MemberDatabase.Dto.Contracts;
     using WahineKai.MemberDatabase.Dto.Properties;
 
     /// <summary>
@@ -19,6 +18,11 @@ namespace WahineKai.MemberDatabase.Dto
     /// </summary>
     public abstract class CosmosRepositoryBase : RepositoryBase
     {
+        /// <summary>
+        /// Shared cosmos client factory for creating cosmos clients
+        /// </summary>
+        private static readonly ICosmosClientFactory CosmosClientFactory = new CosmosClientFactory();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosRepositoryBase"/> class.
         /// </summary>
@@ -36,16 +40,9 @@ namespace WahineKai.MemberDatabase.Dto
             // Set database id
             this.DatabaseId = Ensure.IsNotNullOrWhitespace(() => cosmosConfiguration.DatabaseId);
 
-            // Create custom JSON serializer for enums
-            var jsonSerializationSettings = new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-            };
-            jsonSerializationSettings.Converters.Add(new StringEnumConverter());
-
-            // Create cosmos client
-            var cosmosOptions = new CosmosClientOptions() { Serializer = new CosmosJsonSerializer(jsonSerializationSettings) };
-            this.CosmosClient = new CosmosClient(cosmosConfiguration.ConnectionString, cosmosOptions);
+            this.CosmosClient = CosmosRepositoryBase
+                .CosmosClientFactory
+                .GetCosmosClient(Ensure.IsNotNullOrWhitespace(() => cosmosConfiguration.ConnectionString));
 
             this.Logger.LogTrace("Construction of Cosmos Repository Base complete");
         }

@@ -12,7 +12,7 @@ namespace WahineKai.MemberDatabase.Dto
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using LinqKit;
+    using Microsoft.Azure.Cosmos;
     using Microsoft.Azure.Cosmos.Linq;
     using Microsoft.Extensions.Logging;
     using WahineKai.Common;
@@ -52,12 +52,13 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Getting user with email {email} from Cosmos DB");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
+            using var iterator = await this.WithRetriesAsync<FeedIterator<T>, CosmosException>(
+                () => this.container.GetItemLinqQueryable<T>()
                 #pragma warning disable CS8602 // All users in database will have email
                 .Where(user => user.Email.Equals(email))
                 #pragma warning restore CS8602
                 .Take(1)
-                .ToFeedIterator();
+                .ToFeedIterator());
 
             var feedResponse = await iterator.ReadNextAsync();
 
@@ -84,10 +85,11 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Getting user with id {id} from Cosmos DB");
 
-            using var iterator = this.container.GetItemLinqQueryable<T>()
+            using var iterator = await this.WithRetriesAsync<FeedIterator<T>, CosmosException>(
+                () => this.container.GetItemLinqQueryable<T>()
                 .Where(user => id.ToString() == user.Id.ToString())
                 .Take(1)
-                .ToFeedIterator();
+                .ToFeedIterator());
 
             var feedResponse = await iterator.ReadNextAsync();
 
@@ -114,7 +116,8 @@ namespace WahineKai.MemberDatabase.Dto
 
             this.Logger.LogTrace($"Deleting user with id {id} from the database");
 
-            await this.container.DeleteItemAsync<T>(id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(id.ToString()));
+            await this.WithRetriesAsync<CosmosException>(
+                async () => await this.container.DeleteItemAsync<T>(id.ToString(), new Microsoft.Azure.Cosmos.PartitionKey(id.ToString())));
 
             this.Logger.LogInformation("Deleted 1 user from the database");
         }
@@ -124,7 +127,8 @@ namespace WahineKai.MemberDatabase.Dto
         {
             this.Logger.LogDebug("Getting all users from Cosmos DB");
 
-            using var iterator = this.container.GetItemQueryIterator<T>();
+            using var iterator = await this.WithRetriesAsync<FeedIterator<T>, CosmosException>(
+                () => this.container.GetItemQueryIterator<T>());
 
             var users = new Collection<T>();
 
@@ -176,10 +180,11 @@ namespace WahineKai.MemberDatabase.Dto
 
             try
             {
-                using var iterator = this.container.GetItemLinqQueryable<T>()
+                using var iterator = await this.WithRetriesAsync<FeedIterator<T>, CosmosException>(
+                    () => this.container.GetItemLinqQueryable<T>()
                     .Where(dbUser => dbUser.Email == user.Email)
                     .Take(1)
-                    .ToFeedIterator();
+                    .ToFeedIterator());
 
                 var feedResponse = await iterator.ReadNextAsync();
 
@@ -219,10 +224,11 @@ namespace WahineKai.MemberDatabase.Dto
 
             try
             {
-                using var iterator = this.container.GetItemLinqQueryable<T>()
+                using var iterator = await this.WithRetriesAsync<FeedIterator<T>, CosmosException>(
+                    () => this.container.GetItemLinqQueryable<T>()
                     .Where(dbUser => dbUser.Email == updatedUser.Email)
                     .Take(1)
-                    .ToFeedIterator();
+                    .ToFeedIterator());
 
                 var feedResponse = await iterator.ReadNextAsync();
 
