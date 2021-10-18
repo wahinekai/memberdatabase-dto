@@ -72,5 +72,10 @@ namespace WahineKai.MemberDatabase.Dto.Enums
         /// </summary>
         [EnumMember(Value = "Chapter Event Coordinator")]
         ChapterEventCoordinator,
+
+        /// <summary>
+        /// Merchandiser for the club
+        /// </summary>
+        Merchandiser,
     }
 }
